@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" href="https://www.learntek.org/blog/wp-content/uploads/2018/12/Natural-Language-ProcessinG.png" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <title> NLP preprocessing </title>
+        <style>
+            .img {
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-image: url("https://www.webdesignerdepot.com/cdn-origin/uploads/2018/04/featured_nlp.jpg");
+            }
+            .container {
+                width: 100%;
+                height: 100%;                
+            }
+            .split1 {
+                width: 100%;
+                height: 20%;
+            }
+            .button {
+                opacity: 1;
+                width: 220px;
+                border: none;
+                color: white;
+                cursor: pointer;
+                font-size: 13px;
+                margin: 4px 2px;
+                transition: 0.3s;
+                padding: 12px 24px;
+                text-align: center;
+                border-radius: 15px;
+                display: inline-block;
+                text-decoration: none;
+                background-color: #f4511e;
+            }
+            textarea {
+                resize: none;
+                vertical-align: middle;
+                border: none;
+                font-size: 12pt;
+                font-weight: bold;
+                text-align: center;
+                font-family: "verdana";
+                background: transparent;
+            }
+        </style>
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
+    </head>
+
+    <body align="center" class="img">
+        <div class="container">
+
+            <div class="split1" style="padding-top: 2%;"> <h1>NATURAL LANGUAGE PROCESSING ENGINE</h1> </div>
+
+            <div>
+                <br/> <br/> <br/>
+                <b> <label style="font-size: 18px;"> Your results are ready and as per Below </label> </b> <br/> <br/>
+                <textarea rows="{{rows}}" cols="100">{{data}}</textarea>
+                <br/> <br/> <br/>
+                <button class="button" onclick="goBack();"> Go Back </button>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" href="https://www.learntek.org/blog/wp-content/uploads/2018/12/Natural-Language-ProcessinG.png" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <title> NLP Engine </title>
+        <style>
+            .img {
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-image: url("https://www.webdesignerdepot.com/cdn-origin/uploads/2018/04/featured_nlp.jpg");
+            }
+            .container {
+                width: 100%;
+                height: 100%;                
+            }
+            .split1 {
+                width: 100%;
+                height: 20%;
+            }
+            .split2 {
+                width: 100%;
+                float: left;
+                height: 20%;
+                border-collapse: collapse;
+            }
+            .split3 {
+                width: 100%;
+                float: left;
+                height: 30%;
+                display: block;
+                position: relative;
+                border-collapse: collapse;
+            }
+            .split4 {
+                width: 20%;
+                float: left;
+                border-collapse: collapse;
+            }
+            .split5 {
+                width: 100%;
+                float: left;
+                border-collapse: collapse;
+            }
+            .button {
+                opacity: 1;
+                width: 220px;
+                border: none;
+                color: white;
+                cursor: pointer;
+                font-size: 13px;
+                margin: 4px 2px;
+                transition: 0.3s;
+                padding: 12px 24px;
+                text-align: center;
+                border-radius: 15px;
+                display: inline-block;
+                text-decoration: none;
+                background-color: #f4511e;
+            }
+            #pipeline-div, #basic-div, #numeric-div, #stopword-div, #advanced-div {
+                display: none;
+            }
+            #stem-lemmatize-div, #submit-reset-div, #single-string-div, #multiple-string-div, #preprocess-buttons-div {
+                display: none;
+            }
+            #pageloader {
+                cursor: wait;
+                display: none;
+                position: fixed;
+                z-index: +100 !important;
+            }
+            #pageloader img {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 80%;
+                height: 100%;
+                position: fixed;
+                padding-left: 10%;
+                padding-right: 10%;
+                text-align: center;
+                background-repeat: no-repeat !important;
+                background-color: rgba(255, 255, 255, 0.7);
+            }
+            textarea {
+                resize: none;
+                vertical-align: middle;
+                /*border: none;
+                font-size: 12pt;
+                font-weight: bold;
+                text-align: center;
+                font-family: "verdana";
+                background: transparent;*/
+            }
+            table {
+                border-spacing: 0 1em;
+                border-collapse: separate;
+            }
+            .thtd {
+                padding-right: 1%;
+                padding-top: 2%;
+                text-align: justify;
+                padding-bottom: 2%;
+                border: 2px solid darkred;
+            }
+            h1 {
+                padding-top: 25px;
+                text-align: center;
+            }
+            .blink {
+                color: red;
+                font-weight: bold;
+                font-family: sans-serif;
+                animation: blinker 1s linear infinite;
+            }
+            @keyframes blinker {
+                50% { opacity: 0.3; }
+            }
+            .checkboxmain {
+                color: black;
+                display: block;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+                position: relative;
+                padding-left: 45px;
+                margin-bottom: 15px;
+            }
+            input[type=checkbox] {
+                visibility: hidden;
+            }
+            .checkboxclass {
+                top: 0;
+                left: 0;
+                width: 25px;
+                height: 25px;
+                position: absolute;
+                background-color: black;
+            }
+            .checkboxmain:hover input ~ .checkboxclass {
+                background-color: yellow;
+            }
+            .checkboxmain input:active ~ .checkboxclass {
+                background-color: red;
+            }
+            .checkboxmain input:checked ~ .checkboxclass {
+                background-color: green;
+            }
+            .checkboxclass:after {
+                content: "";
+                display: none;
+                position: absolute;
+            }
+            .checkboxmain input:checked ~ .checkboxclass:after {
+                display: block;
+            }
+            .checkboxmain .checkboxclass:after {
+                left: 8px;
+                width: 6px;
+                bottom: 5px;
+                height: 12px;
+                border: solid white;
+                transform: rotate(45deg);
+                border-width: 0 4px 4px 0;
+                -ms-transform: rotate(45deg);
+                -webkit-transform: rotate(45deg);
+            }
+            input[type='radio']:after {
+                top: -2px;
+                left: -1px;
+                content: '';
+                width: 15px;
+                height: 15px;
+                cursor: pointer;
+                position: relative;
+                visibility: visible;
+                border-radius: 15px;
+                display: inline-block;
+                background-color: lightgray;
+                border: 2px solid white;
+            }
+            input[type='radio']:checked:after {
+                top: -2px;
+                left: -1px;
+                content: '';
+                width: 15px;
+                height: 15px;
+                cursor: pointer;
+                position: relative;
+                border-radius: 15px;
+                visibility: visible;
+                display: inline-block;
+                border: 2px solid white;
+                background-color: green;
+            }
+        </style>
+        <script>
+            $(window).ready(function() {
+                $("#myform").on("submit", function() {
+                    $("#pageloader").fadeIn("slow");
+                });
+                $("#pipeline-button").on("click", function() {
+                    $("#pipeline-div").show();
+                    $("#pipeline-button-div").hide();
+                });
+                $("#basic-preprocess").on("click", function() {
+                    $("#basic-div").show();
+                    $("#numeric-div").hide();
+                    $("#stopword-div").hide();
+                    $("#advanced-div").hide();
+                    $("#stem-lemmatize-div").hide();
+                    $("#submit-reset-div").show();
+                });
+                $("#numeric").on("click", function() {
+                    $("#basic-div").show();
+                    $("#numeric-div").show();
+                    $("#stopword-div").hide();
+                    $("#advanced-div").hide();
+                    $("#stem-lemmatize-div").hide();
+                    $("#submit-reset-div").show();
+                });
+                $("#stopword").on("click", function() {
+                    $("#basic-div").show();
+                    $("#numeric-div").show();
+                    $("#stopword-div").show();
+                    $("#advanced-div").hide();
+                    $("#stem-lemmatize-div").hide();
+                    $("#submit-reset-div").show();
+                });
+                $("#advanced-preprocess").on("click", function() {
+                    $("#basic-div").show();
+                    $("#numeric-div").show();
+                    $("#stopword-div").show();
+                    $("#advanced-div").show();
+                    $("#stem-lemmatize-div").hide();
+                    $("#submit-reset-div").show();
+                });
+                $("#stem-lemmatize").on("click", function() {
+                    $("#basic-div").show();
+                    $("#numeric-div").show();
+                    $("#stopword-div").show();
+                    $("#advanced-div").show();
+                    $("#stem-lemmatize-div").show();
+                    $("#submit-reset-div").show();
+                });
+                $('input:radio[name="string"]').change(function() {
+                    if (this.checked && this.value == 'single') {
+                        $("#single-string-div").show();
+                        $("#multiple-string-div").hide();
+                        $("#preprocess-buttons-div").show();
+                    }
+                    else if (this.checked && this.value == 'multiple') {
+                        $("#single-string-div").hide();
+                        $("#multiple-string-div").show();
+                        $("#preprocess-buttons-div").show();
+                    }
+                });
+            });
+        </script>
+    </head>
+
+    <body align="center" class="img">
+
+        <div id="pageloader">
+            <img src="https://flevix.com/wp-content/uploads/2019/07/Bubble-Preloader-1.gif" alt="processing..."/>
+        </div>
+
+        <div class="container">
+
+            <div class="split1"> <h1>NATURAL LANGUAGE PROCESSING ENGINE</h1> </div>
+
+            <div class="split2">
+                <div id="pipeline-button-div">
+                    <br/> <br/>
+                    <b> <label> Text Preprocessing important steps given below </label> </b> <br/>
+                    <table align="center" style="width: 80%; color: black;">
+                        <tr>
+                            <th class="thtd" style="text-align: center;"> Lowercase&nbsp;&nbsp;&nbsp;&nbsp; </th>
+                            <td class="thtd" style="padding-left: 1%;"> This is very basic and important step in preprocessing to maintain uniformity in text either you can use lowercase or uppercase depending upon your choice. </td>
+                            <td style="padding: 10px;"> </td>
+                            <th class="thtd" style="text-align: center;"> Contraction </th>
+                            <td class="thtd" style="padding-left: 1%;"> Words are combined in when you write in English language like don't => do not, I'll => I will so resolve all these Contraction words. </td>
+                        </tr>
+                        <tr>
+                            <th class="thtd" style="text-align: center;"> Numeric Preprocess </th>
+                            <td class="thtd" style="padding-left: 1%;"> Either you can change numbers to string or remove the numbers. Most of the time number is not helpful in sentiment analysis, text matching but if you want then you can select. </td>
+                            <td> </td>
+                            <th class="thtd" style="text-align: center;"> Stopword Removal </th>
+                            <td class="thtd" style="padding-left: 1%;"> In some cases, "no", "not", "never" are important in the the text cause used in sentiment analysis. </td>
+                        </tr>
+                        <tr>
+                            <th class="thtd" style="text-align: center;"> Advanced Preprocess </th>
+                            <td class="thtd" style="padding-left: 1%;"> Punctuation, whitespaces, short words like I, A, etc. do not contribute in sentence, so remove those. </td>
+                            <td> </td>
+                            <th class="thtd" style="text-align: center;"> Stemming and Lemmatization </th>
+                            <td class="thtd" style="padding-left: 1%;"> You can go for stemming and lemmatization or either of this. For both it will be first stemming and then lemmatization. In stemming, porter and snowball stemming you can choose either of this. </td>
+                        </tr>
+                    </table> <br/> <br/>
+                    <button id="pipeline-button" class="button"> Show Pipeline </button>
+                </div>
+
+                <form id="myform" method="post" action="/anuvrat/nlp/nlpengine" autocomplete="off">
+                    <div id="pipeline-div">
+                        <br/>
+
+                        <div>
+                            <b> <input type="radio" name="string" value="single"> Single String </b> &nbsp;&nbsp;&nbsp;&nbsp;
+                            <b> <input type="radio" name="string" value="multiple"> Multiple String </b>
+                        </div>
+                        <br/>
+                        <div id="single-string-div" align="center">
+                            <b> <label> Enter String: &nbsp;&nbsp;&nbsp;&nbsp; </label> </b>
+                            <b> <input type="text" name="single-string" size="100"> </b>
+                        </div>
+                        <div id="multiple-string-div" align="center">
+                            <b> <label> Enter Input: &nbsp;&nbsp;&nbsp;&nbsp; </label> </b>
+                            <b> <textarea name="multiple-string" rows="5" cols="100"></textarea> </b> <br/>
+                            <b> <span class="blink"> *Enter each sentence on newline </span> </b>
+                        </div>
+                        <br/>
+                        <div id="preprocess-buttons-div">
+                            <button id="basic-preprocess" type="button" class="button"> Basic Preprocessing </button>
+                            <img src="{{url_for('static', filename='arrow.jpg')}}" width="50" height="35" alt="==>" />
+                            
+                            <button id="numeric" type="button" class="button"> Numeric Preprocessing </button>
+                            <img src="{{url_for('static', filename='arrow.jpg')}}" width="50" height="35" alt="==>" />
+                            
+                            <button id="stopword" type="button" class="button">Stopword Removal</button>
+                            <img src="{{url_for('static', filename='arrow.jpg')}}" width="50" height="35" alt="==>" />
+                            
+                            <button id="advanced-preprocess" type="button" class="button"> Advanced Preprocessing </button>
+                            <img src="{{url_for('static', filename='arrow.jpg')}}" width="50" height="35" alt="==>" />
+
+                            <button id="stem-lemmatize" type="button" class="button">Stemming & Lemmatization</button>
+                            
+                        </div>
+                    </div>
+
+                    <div class="split3">
+                        <div id="basic-div" align="right" class="split4">
+                            <table>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <label class="checkboxmain" style="color: darkred;"> Change to Lowercase (Default)
+                                            <input type="checkbox" name="lowercase" value="True" disabled checked>
+                                            <span class="checkboxclass" style="background-color: darkgray;"> </span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <label class="checkboxmain"> Resolve Contraction of Words
+                                            <input type="checkbox" name="contraction" value="True">
+                                            <span class="checkboxclass"> </span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="numeric-div" align="center" class="split4">
+                            <table>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <div>
+                                            <b> Numeric Preprocessing </b> <br/> <br/>
+                                            <b> <input type="radio" name="numeric" value="convertnum2str"> &nbsp;&nbsp;Convert Number to Words </b> <br/> <br/>
+                                            <b> <input type="radio" name="numeric" value="removenumeric"> &nbsp;&nbsp;Remove Numbers </b>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="stopword-div" align="center" class="split4">
+                            <table>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <div>
+                                            <b> Stopword Removal </b> <br/> <br/>
+                                            <b> <input type="radio" name="stopwords" value="removewords"> &nbsp;&nbsp;Remove Negative Words </b> <br/> <br/>
+                                            <b> <input type="radio" name="stopwords" value="keepwords"> &nbsp;&nbsp;Don't Remove Negative Words </b>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="advanced-div" align="center" class="split4">
+                            <table>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <label class="checkboxmain"> Remove Puctuation
+                                            <input type="checkbox" name="punctuation" value="True">
+                                            <span class="checkboxclass"> </span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <label class="checkboxmain"> Remove Multiple Whitespace
+                                            <input type="checkbox" name="whitespace" value="True">
+                                            <span class="checkboxclass"> </span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <label class="checkboxmain"> Remove Words Whose Length is 1
+                                            <input type="checkbox" name="shortword" value="True">
+                                            <span class="checkboxclass"> </span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="stem-lemmatize-div" align="left" class="split4">
+                            <table>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <div>
+                                            <b> Stemming </b> <br/> <br/>
+                                            <b> <input type="radio" name="stemming" value="porter"> &nbsp;&nbsp;Porter Stemming </b> <br/> <br/>
+                                            <b> <input type="radio" name="stemming" value="snowball"> &nbsp;&nbsp;Snowball Stemming </b>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr align="left">
+                                    <td colspan="2">
+                                        <label class="checkboxmain"> Lemmatization
+                                            <input type="checkbox" name="lemmatization" value="True">
+                                            <span class="checkboxclass"> </span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="submit-reset-div" class="split5">
+                            <input type="submit" class="button" name="submit" value="Submit"> &nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="reset" class="button" name="reset" value="Reset Selections">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
